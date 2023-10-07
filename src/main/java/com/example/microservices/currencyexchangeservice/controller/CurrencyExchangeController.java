@@ -1,25 +1,37 @@
 package com.example.microservices.currencyexchangeservice.controller;
 
-import com.example.microservices.currencyexchangeservice.dto.CurrencyExchange;
+import com.example.microservices.currencyexchangeservice.model.CurrencyExchange;
+import com.example.microservices.currencyexchangeservice.repository.CurrencyExchangeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 public class CurrencyExchangeController {
 
     private final Environment environment;
+    private final CurrencyExchangeRepository repository;
 
     @Autowired
-    public CurrencyExchangeController(Environment environment) {
+    public CurrencyExchangeController(Environment environment, CurrencyExchangeRepository repository) {
         this.environment = environment;
+        this.repository = repository;
     }
 
     @GetMapping("/currency-exchange/from/{from}/to/{to}")
     public CurrencyExchange getExchangeValue(@PathVariable String from, @PathVariable String to){
+        CurrencyExchange currencyExchange = repository.findByFromAndTo(from, to);
+
+        if (Objects.isNull(currencyExchange)) {
+            throw new RuntimeException(String.format("Unable to find data for %s and %s", from, to));
+        }
+
         String port = environment.getProperty("local.server.port");
-        return new CurrencyExchange(1000l, "USD", "INR", 65.0f, port);
+        currencyExchange.setPort(port);
+        return currencyExchange;
     }
 }
