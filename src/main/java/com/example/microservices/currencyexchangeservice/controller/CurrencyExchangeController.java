@@ -2,6 +2,7 @@ package com.example.microservices.currencyexchangeservice.controller;
 
 import com.example.microservices.currencyexchangeservice.model.CurrencyExchange;
 import com.example.microservices.currencyexchangeservice.repository.CurrencyExchangeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 
 @RestController
+@Slf4j
 public class CurrencyExchangeController {
 
     private final Environment environment;
@@ -24,6 +26,7 @@ public class CurrencyExchangeController {
 
     @GetMapping("/currency-exchange/from/{from}/to/{to}")
     public CurrencyExchange getExchangeValue(@PathVariable String from, @PathVariable String to){
+        log.info("getExchangeValue called with - from {}, to {}", from, to);
         CurrencyExchange currencyExchange = repository.findByFromAndTo(from, to);
 
         if (Objects.isNull(currencyExchange)) {
